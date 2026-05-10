@@ -1,4 +1,9 @@
 mod_kde_connect(){
+    MOD_DESC='KDE Connect module'
+    MOD_TYPE='built-in'
+    MOD_BACKEND='KDE Connect'
+    MOD_DEPS=(kdeconnect-cli qdbus)
+
     local MOD_DIR="$RUNDIR/$MOD"
     [ "$DEV_ID" ] && local STATUS_FILE="$MOD_DIR/$DEV_ID"
 
