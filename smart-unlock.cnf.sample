@@ -3,6 +3,11 @@ CHECK_FREQ=1
 NOTIFY=1 # desktop notification
 
 # Modules array
-MODULES=(kde_connect)
+MODULES=(
+    kde_connect
+    bluetooth
+)
 # Devices array, format: module::ID
-DEVICES=('kde_connect::rjig298tu49')
+DEVICES=('kde_connect::1337ffffr2d2'
+         'bluetooth::F4:14:C8:E5:C4:33'
+         'bluetooth::E7:EE:CC:64:AE:86')
