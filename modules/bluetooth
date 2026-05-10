@@ -1,0 +1,42 @@
+mod_bluetooth_info(){
+    MOD_DESC=''
+    MOD_TYPE=''
+    MOD_BACKEND=''
+    MOD_DEPS=(bluetoothctl)
+}
+
+mod_bluetooth_init(){
+    mod_common_init
+}
+
+mod_bluetooth_init_dev(){
+    mod_common_init_dev
+}
+
+mod_bluetooth_check_connect(){
+# Needs to return 0 only when device connection state changed to yes
+    local MOD_DIR="$RUNDIR/$MOD"
+    local STATUS_FILE="$MOD_DIR/$DEV_ID"
+
+
+    local OLD_STATE="$(cat "$STATUS_FILE")"
+    if bluetoothctl info "$DEV_ID" | \
+        awk '/Connected: /{ print $2 }' | grep -q '^yes$';
+    then
+        NEW_STATE=1
+    else
+        NEW_STATE=0
+    fi
+    echo "$NEW_STATE" > "$STATUS_FILE"
+    if [[ $NEW_STATE -gt $OLD_STATE ]]; then
+        echo "Device $DEV_ID connected"
+        return 0
+    else
+        return 1
+    fi
+}
+
+mod_bluetooth_pretty_name(){
+    # TODO: figure out something more robust
+    bluetoothctl info "$DEV_ID" | grep 'Name:' | sed 's/^.*Name: //'
+}
