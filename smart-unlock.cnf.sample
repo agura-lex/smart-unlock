@@ -1,5 +1,6 @@
 DEBUG=0
 CHECK_FREQ=1
+NOTIFY=1 # desktop notification
 
 # Modules array
 MODULES=(kde_connect)
