@@ -57,6 +57,7 @@ mkdir -vpm 700 "$RUNDIR"
 
 # initialize modules
 # TODO: check deps
+. "$MODDIR/common" # source common module funcs
 for MOD in "${MODULES[@]}"; do
     echo "Initializing module '$MOD'..."
     . "$MODDIR/$MOD"
@@ -77,6 +78,12 @@ done
 unset DEV
 unset MOD
 
+# Cleanup on exit
+trap \
+    "echo;
+    echo 'Cleaning stuff up before exiting...';
+    rm -rv $RUNDIR" \
+    SIGTERM SIGINT
 
 # Main loop
 while true; do
