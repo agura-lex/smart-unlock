@@ -34,7 +34,16 @@ mod_log(){ # Module action wrapper, prepend module name
     mod "$@" 2>&1 | sed "s/^/$MOD: /"
 }
 
-
+check_mod(){
+    #debug "Checking if module '$MOD' is enabled"
+    for M in "${MODULES[@]}"; do
+        if [ "$M" == "$MOD" ]; then
+            return 0
+        fi
+    done
+    echo "Module '$MOD' not enabled, skipping '$DEV_STR'"
+    return 1
+}
 
 unlock_if_locked(){
     if loginctl show-session $XDG_SESSION_ID -p LockedHint |
@@ -45,7 +54,7 @@ unlock_if_locked(){
         if [ "$NOTIFY" ]; then
             DEV_NAME="$(mod pretty_name)"
             notify-send -i unlock -a 'Smart Unlock'\
-                "Session unlocked due to \"$DEV_NAME\" connecting via \"$MOD\""
+                "Session unlocked due to \"$DEV_NAME\" connecting via $MOD"
         fi
     else
         debug "Session unlocked already, not doing anything"
@@ -62,7 +71,6 @@ for MOD in "${MODULES[@]}"; do
     echo "Initializing module '$MOD'..."
     . "$MODDIR/$MOD"
     mod_log init
-    debug "MOD_DESC='$MOD_DESC'"
 done
 unset MOD
 
@@ -72,8 +80,9 @@ echo "Initializing device $DEV_STR..."
     MOD=$(awk -F '::' '{ print $1}' <<<"$DEV_STR")
     DEV_ID=$(awk -F '::' '{ print $2}' <<<"$DEV_STR")
     debug "Device ID: $DEV_ID, module: $MOD"
-
-    mod_log init_dev $DEV_ID
+    if check_mod; then
+        mod_log init_dev $DEV_ID
+    fi
 done
 unset DEV
 unset MOD
@@ -90,8 +99,10 @@ while true; do
     for DEV_STR in "${DEVICES[@]}"; do
         MOD=$(awk -F '::' '{ print $1}' <<<"$DEV_STR")
         DEV_ID=$(awk -F '::' '{ print $2}' <<<"$DEV_STR")
-        if mod_log check_connect "$DEV_ID"; then
-            unlock_if_locked
+        if check_mod > /dev/null; then
+            if mod_log check_connect "$DEV_ID"; then
+                unlock_if_locked
+            fi
         fi
     done
     sleep "$CHECK_FREQ"
