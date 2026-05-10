@@ -1,0 +1,7 @@
+DEBUG=0
+CHECK_FREQ=1
+
+# Modules array
+MODULES=(kde_connect)
+# Devices array, format: module::ID
+DEVICES=('kde_connect::rjig298tu49')
