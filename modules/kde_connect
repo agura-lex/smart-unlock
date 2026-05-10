@@ -1,50 +1,58 @@
-mod_kde_connect(){
+mod_kde_connect_info(){
     MOD_DESC='KDE Connect module'
     MOD_TYPE='built-in'
     MOD_BACKEND='KDE Connect'
     MOD_DEPS=(kdeconnect-cli qdbus)
+}
 
+mod_kde_connect_init(){
     local MOD_DIR="$RUNDIR/$MOD"
-    [ "$DEV_ID" ] && local STATUS_FILE="$MOD_DIR/$DEV_ID"
+    mkdir -vpm 700 "$MOD_DIR"
+}
 
-    case "$1" in
-        init) mkdir -vpm 700 "$MOD_DIR" ;;
-        init_dev)
-            echo "Initializing device $DEV_ID..."
-            debug "Assuming device not connected, writing 0 to $STATUS_FILE"
-            touch "$STATUS_FILE"
-            chmod 600 "$STATUS_FILE"
-            echo 0 > "$STATUS_FILE"
-            ;;
-        check_connect)
-        # Needs to return 0 only when device connection state changed to yes
-            debug "Checking kde connect daemon"
-            if ! qdbus org.kde.kdeconnect >/dev/null; then
-                debug "KDE Connect daemon not running"
-                echo 0 > "$STATUS_FILE"
-                return 1
-            fi
+mod_kde_connect_init_dev(){
+    local MOD_DIR="$RUNDIR/$MOD"
+    local STATUS_FILE="$MOD_DIR/$DEV_ID"
+    echo "Initializing device $DEV_ID..."
+    debug "Assuming device not connected, writing 0 to $STATUS_FILE"
+    touch "$STATUS_FILE"
+    chmod 600 "$STATUS_FILE"
+    echo 0 > "$STATUS_FILE"
+}
 
-            local OLD_STATE="$(cat "$STATUS_FILE")"
-            if [[ "$(qdbus org.kde.kdeconnect \
-                /modules/kdeconnect/devices/"$DEV_ID" \
-                org.kde.kdeconnect.device.isReachable)" == true ]]; then
-                NEW_STATE=1
-            else
-                NEW_STATE=0
-                kdeconnect-cli --refresh
-            fi
-            echo "$NEW_STATE" > "$STATUS_FILE"
-            if [[ $NEW_STATE -gt $OLD_STATE ]]; then
-                echo "Device $DEV_ID connected"
-                return 0
-            else
-                return 1
-            fi
-            ;;
-        pretty_name)
-            qdbus org.kde.kdeconnect \
-                /modules/kdeconnect/devices/$DEV_ID \
-                org.kde.kdeconnect.device.name
-    esac
+mod_kde_connect_check_connect(){
+# Needs to return 0 only when device connection state changed to yes
+    local MOD_DIR="$RUNDIR/$MOD"
+    local STATUS_FILE="$MOD_DIR/$DEV_ID"
+
+    debug "Checking kde connect daemon"
+    if ! qdbus org.kde.kdeconnect >/dev/null; then
+        debug "KDE Connect daemon not running"
+        echo 0 > "$STATUS_FILE"
+        return 1
+    fi
+
+    local OLD_STATE="$(cat "$STATUS_FILE")"
+    if [[ "$(qdbus org.kde.kdeconnect \
+        /modules/kdeconnect/devices/"$DEV_ID" \
+        org.kde.kdeconnect.device.isReachable)" == true ]];
+    then
+        NEW_STATE=1
+    else
+        NEW_STATE=0
+        kdeconnect-cli --refresh
+    fi
+    echo "$NEW_STATE" > "$STATUS_FILE"
+    if [[ $NEW_STATE -gt $OLD_STATE ]]; then
+        echo "Device $DEV_ID connected"
+        return 0
+    else
+        return 1
+    fi
+}
+
+mod_kde_connect_pretty_name(){
+    qdbus org.kde.kdeconnect \
+        /modules/kdeconnect/devices/$DEV_ID \
+        org.kde.kdeconnect.device.name
 }
