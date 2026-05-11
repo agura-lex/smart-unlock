@@ -1,3 +1,5 @@
+#!/bin/bash
+
 mod_bluetooth_info(){
     MOD_DESC=''
     MOD_TYPE=''

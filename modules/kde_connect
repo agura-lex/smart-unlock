@@ -1,3 +1,5 @@
+#!/bin/bash
+
 mod_kde_connect_info(){
     MOD_DESC='KDE Connect module'
     MOD_TYPE='built-in'
