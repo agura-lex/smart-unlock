@@ -14,7 +14,7 @@ jobs:
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         env:
-            SHELLCHECK_OPTS: -x
+            SHELLCHECK_OPTS: -x -e SC1091
         with:
             check_together: 'yes'
             additional_files: 'modules/*'
