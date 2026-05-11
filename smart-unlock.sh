@@ -63,6 +63,7 @@ unlock_if_locked(){
 
 # initialize working directory
 mkdir -vpm 700 "$RUNDIR"
+echo
 
 # initialize modules
 # TODO: check deps
@@ -73,6 +74,7 @@ for MOD in "${MODULES[@]}"; do
     mod_log init
 done
 unset MOD
+echo
 
 # initialize devices
 for DEV_STR in "${DEVICES[@]}"; do
@@ -86,6 +88,7 @@ echo "Initializing device $DEV_STR..."
 done
 unset DEV
 unset MOD
+echo
 
 # Cleanup on exit
 trap \

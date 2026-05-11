@@ -18,7 +18,6 @@ mod_kde_connect_check_connect(){
     local MOD_DIR="$RUNDIR/$MOD"
     local STATUS_FILE="$MOD_DIR/$DEV_ID"
 
-    debug "Checking kde connect daemon"
     if ! qdbus org.kde.kdeconnect >/dev/null; then
         debug "KDE Connect daemon not running"
         echo 0 > "$STATUS_FILE"

@@ -6,7 +6,7 @@ mod_common_init(){
 mod_common_init_dev(){
     local MOD_DIR="$RUNDIR/$MOD"
     local STATUS_FILE="$MOD_DIR/$DEV_ID"
-    echo "Initializing device $DEV_ID..."
+    echo "Monitoring for device $DEV_ID..."
     debug "Assuming device not connected, writing 0 to $STATUS_FILE"
     touch "$STATUS_FILE"
     chmod 600 "$STATUS_FILE"
