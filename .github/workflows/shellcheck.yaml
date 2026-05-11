@@ -15,4 +15,4 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
             check_together: 'yes'
-            scandir: './modules'
+            additional_files: 'modules/*'
