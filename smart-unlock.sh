@@ -29,7 +29,7 @@ mod(){ # Module action wrapper
     # TODO: add sanity checks
     local FUNC="$1"
     shift
-    "mod_${MOD}_${FUNC}" $@ 2>&1
+    "mod_${MOD}_${FUNC}" "$@" 2>&1
 }
 
 mod_log(){ # Module action wrapper, prepend module name
