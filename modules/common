@@ -2,6 +2,8 @@
 
 # Common module functions
 
+# shellcheck disable=SC2174
+
 mod_common_init(){
     local MOD_DIR="$RUNDIR/$MOD"
     mkdir -vpm 700 "$MOD_DIR"

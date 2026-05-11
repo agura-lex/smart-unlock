@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2174
+
 set -e
 set -o pipefail
 
@@ -7,7 +9,7 @@ readonly CONFIG_FILE='./smart-unlock.cnf' # TODO: move this to its proper locati
 readonly RUNDIR="$XDG_RUNTIME_DIR/smart-unlock" # TODO: sanity checks for this
 readonly MODDIR='./modules' # TODO: adapt to system-wide installation
 
-err(){ echo $@ 1>&2; }
+err(){ echo "$@" 1>&2; }
 
 debug(){
     if [ "$DEBUG" == 1 ]; then
@@ -16,7 +18,8 @@ debug(){
 }
 
 if [ -f "$CONFIG_FILE" ]; then
-    source "$CONFIG_FILE"
+    # shellcheck source=smart-unlock.cnf
+    . "$CONFIG_FILE"
 else
     err "The '$CONFIG_FILE' doesn't exist!"
     exit 1
@@ -46,7 +49,7 @@ check_mod(){
 }
 
 unlock_if_locked(){
-    if loginctl show-session $XDG_SESSION_ID -p LockedHint |
+    if loginctl show-session "$XDG_SESSION_ID" -p LockedHint |
         awk -F= '{print $2}' | grep -q '^yes$'
     then
         echo "Session locked, unlocking" >&2
@@ -67,9 +70,12 @@ echo
 
 # initialize modules
 # TODO: check deps
+# shellcheck source=modules/common
 . "$MODDIR/common" # source common module funcs
 for MOD in "${MODULES[@]}"; do
     echo "Initializing module '$MOD'..."
+    # shellcheck source=modules/kde_connect
+    # shellcheck source=modules/bluetooth
     . "$MODDIR/$MOD"
     mod_log init
 done
@@ -83,7 +89,7 @@ echo "Initializing device $DEV_STR..."
     DEV_ID=$(awk -F '::' '{ print $2}' <<<"$DEV_STR")
     debug "Device ID: $DEV_ID, module: $MOD"
     if check_mod; then
-        mod_log init_dev $DEV_ID
+        mod_log init_dev "$DEV_ID"
     fi
 done
 unset DEV
@@ -92,9 +98,9 @@ echo
 
 # Cleanup on exit
 trap \
-    "echo;
-    echo 'Cleaning stuff up before exiting...';
-    rm -rv $RUNDIR" \
+    'echo;
+    echo "Cleaning stuff up before exiting...";
+    rm -rv "$RUNDIR" ' \
     SIGTERM SIGINT
 
 # Main loop

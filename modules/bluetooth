@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+
 mod_bluetooth_info(){
     MOD_DESC=''
     MOD_TYPE=''
@@ -21,7 +23,11 @@ mod_bluetooth_check_connect(){
     local STATUS_FILE="$MOD_DIR/$DEV_ID"
 
 
-    local OLD_STATE="$(cat "$STATUS_FILE")"
+    local OLD_STATE
+    local NEW_STATE
+
+    OLD_STATE="$(cat "$STATUS_FILE")"
+
     if bluetoothctl info "$DEV_ID" | \
         awk '/Connected: /{ print $2 }' | grep -q '^yes$';
     then

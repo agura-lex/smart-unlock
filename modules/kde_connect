@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+
 mod_kde_connect_info(){
     MOD_DESC='KDE Connect module'
     MOD_TYPE='built-in'
@@ -26,7 +28,10 @@ mod_kde_connect_check_connect(){
         return 1
     fi
 
-    local OLD_STATE="$(cat "$STATUS_FILE")"
+    local OLD_STATE
+    local NEW_STATE
+    OLD_STATE="$(cat "$STATUS_FILE")"
+
     if [[ "$(qdbus org.kde.kdeconnect \
         /modules/kdeconnect/devices/"$DEV_ID" \
         org.kde.kdeconnect.device.isReachable)" == true ]];
@@ -47,6 +52,6 @@ mod_kde_connect_check_connect(){
 
 mod_kde_connect_pretty_name(){
     qdbus org.kde.kdeconnect \
-        /modules/kdeconnect/devices/$DEV_ID \
+        /modules/kdeconnect/devices/"$DEV_ID" \
         org.kde.kdeconnect.device.name
 }
