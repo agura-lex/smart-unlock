@@ -5,10 +5,15 @@
 set -e
 set -o pipefail
 
-readonly DEFAULTS_CNF_FILE='./defaults.cnf'
-readonly CONFIG_FILE='./smart-unlock.cnf' # TODO: move this to its proper location
-readonly RUNDIR="$XDG_RUNTIME_DIR/smart-unlock" # TODO: sanity checks for this
-readonly MODDIR='./modules' # TODO: adapt to system-wide installation
+# -- Essential functions
+usage(){
+    echo "Usage: $(basename "$0") [OPTS]"
+    echo 'A daemon for auto-unlocking desktop session when a device is connected'
+    echo
+    echo 'Options:'
+    echo '  -l|--local      Run without installation, from a repo directory'
+    echo '  -d|--debug      Be more versbose than it makes sense'
+}
 
 err(){ echo "$@" 1>&2; }
 
@@ -18,6 +23,41 @@ debug(){
     fi
 }
 
+
+# -- Arg parsing
+for ARG in "$@"; do
+    case "$ARG" in
+        '-u'|'--usage'|'-h'|'--help') usage ;;
+        '-l'|'--local') LOCAL_RUN=1 ;;
+        '-d'|'--debug') CLI_DEBUG=1 ;;
+        *)
+            echo "'$ARG': unknown argument"
+            exit 1
+    esac
+done
+
+
+## -- Setting the constants
+readonly RUNDIR="$XDG_RUNTIME_DIR/smart-unlock" # TODO: sanity checks for this
+
+if [ "$LOCAL_RUN" == 1 ]; then
+    debug 'Running locally (from a single directory)'
+
+    APPDIR="$(dirname "$0")"
+    readonly APPDIR
+    readonly DEFAULTS_CNF_FILE="$APPDIR/defaults.cnf"
+    readonly CONFIG_FILE="$APPDIR/smart-unlock.cnf"
+    readonly MODDIR="$APPDIR/modules"
+
+    debug "Directory to run from: $APPDIR"
+else
+    readonly DEFAULTS_CNF_FILE="/usr/share/defaults.cnf"
+    readonly CONFIG_FILE="$HOME/.config/smart-unlock.cnf"
+    readonly MODDIR="/usr/share/smart-unlock/modules"
+fi
+
+
+# -- Figuring out the configuration
 # shellcheck source=defaults.cnf
 . "$DEFAULTS_CNF_FILE"
 
@@ -26,12 +66,15 @@ MODULES=()
 DEVICES=()
 
 if [ -f "$CONFIG_FILE" ]; then
-    # shellcheck source=smart-unlock.cnf
+    # shellcheck source=smart-unlock.cnf.sample
     . "$CONFIG_FILE"
 else
     err "The '$CONFIG_FILE' doesn't exist!"
-    exit 1
+    exit 2
 fi
+
+# Cli argument overrides
+[ -z "$CLI_DEBUG" ] && DEBUG="$CLI_DEBUG"
 
 if [ -z "${MODULES[0]}" ]; then
     echo "No modules enabled, bailing"
@@ -45,6 +88,8 @@ if [ -z "${DEVICES[0]}" ]; then
     exit 2
 fi
 
+
+# -- More functions
 mod(){ # Module action wrapper
     # TODO: add sanity checks
     local FUNC="$1"
@@ -88,7 +133,17 @@ unlock_if_locked(){
     fi
 }
 
-# initialize working directory
+
+# -- Cleanup on exit
+trap \
+    'echo;
+    echo "Cleaning stuff up before exiting...";
+    rm -rv "$RUNDIR" ' \
+    EXIT
+
+
+
+# -- Initialize working directories and files
 mkdir -vpm 700 "$RUNDIR"
 echo
 
@@ -120,14 +175,8 @@ unset DEV
 unset MOD
 echo
 
-# Cleanup on exit
-trap \
-    'echo;
-    echo "Cleaning stuff up before exiting...";
-    rm -rv "$RUNDIR" ' \
-    SIGTERM SIGINT
 
-# Main loop
+# -- Main loop
 while true; do
     for DEV_STR in "${DEVICES[@]}"; do
         MOD=$(awk -F '::' '{ print $1}' <<<"$DEV_STR")
