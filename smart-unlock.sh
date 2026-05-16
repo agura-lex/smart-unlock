@@ -137,8 +137,9 @@ unlock_if_locked(){
         loginctl unlock-session "$XDG_SESSION_ID"
         if [ "$NOTIFY" ]; then
             DEV_NAME="$(mod pretty_name)"
+            MOD_BACKEND="$(mod info backend)"
             notify-send -i unlock -a 'Smart Unlock'\
-                "Session unlocked due to \"$DEV_NAME\" connecting via $MOD"
+                "Session unlocked due to \"$DEV_NAME\" connecting via $MOD_BACKEND"
         fi
     else
         debug "Session unlocked already, not doing anything"
