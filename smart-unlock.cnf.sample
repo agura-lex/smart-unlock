@@ -1,13 +1,22 @@
-DEBUG=0
-CHECK_FREQ=1
-NOTIFY=1 # desktop notification
-
-# Modules array
+# Modules array, uncomment to enable
 MODULES=(
-    kde_connect
-    bluetooth
+    #kde_connect
+    #bluetooth
 )
+
 # Devices array, format: module::ID
-DEVICES=('kde_connect::1337ffffr2d2'
-         'bluetooth::F4:14:C8:E5:C4:33'
-         'bluetooth::E7:EE:CC:64:AE:86')
+# Example:
+# DEVICES=('kde_connect::1337ffffr2d2'
+#          'bluetooth::F4:14:C8:E5:C4:33'
+#          'bluetooth::E7:EE:CC:64:AE:86')
+DEVICES=()
+
+
+# Debug mode (0 or 1)
+#DEBUG=0
+
+# Time between connection checks
+#CHECK_FREQ=1
+
+# Desktop notification on unlock
+#NOTIFY=1

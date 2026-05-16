@@ -1,0 +1,6 @@
+# Debug mode (0 or 1)
+DEBUG=0
+# Time between connection checks
+CHECK_FREQ=1
+# Desktop notification on unlock
+NOTIFY=1

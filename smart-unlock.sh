@@ -5,6 +5,7 @@
 set -e
 set -o pipefail
 
+readonly DEFAULTS_CNF_FILE='./defaults.cnf'
 readonly CONFIG_FILE='./smart-unlock.cnf' # TODO: move this to its proper location
 readonly RUNDIR="$XDG_RUNTIME_DIR/smart-unlock" # TODO: sanity checks for this
 readonly MODDIR='./modules' # TODO: adapt to system-wide installation
@@ -17,12 +18,31 @@ debug(){
     fi
 }
 
+# shellcheck source=defaults.cnf
+. "$DEFAULTS_CNF_FILE"
+
+# Init arrays before reading the conf
+MODULES=()
+DEVICES=()
+
 if [ -f "$CONFIG_FILE" ]; then
     # shellcheck source=smart-unlock.cnf
     . "$CONFIG_FILE"
 else
     err "The '$CONFIG_FILE' doesn't exist!"
     exit 1
+fi
+
+if [ -z "${MODULES[0]}" ]; then
+    echo "No modules enabled, bailing"
+    echo "Be sure to set the MODULES variable in '$CONFIG_FILE'!"
+    exit 2
+fi
+
+if [ -z "${DEVICES[0]}" ]; then
+    echo "No devices added, bailing"
+    echo "Be sure to set the DEVICES variable in '$CONFIG_FILE'!"
+    exit 2
 fi
 
 mod(){ # Module action wrapper
@@ -35,6 +55,10 @@ mod(){ # Module action wrapper
 mod_log(){ # Module action wrapper, prepend module name
     # TODO: add sanity checks
     mod "$@" 2>&1 | sed "s/^/$MOD: /"
+}
+
+mod_log_err(){
+    mod_log "$@" >&2
 }
 
 check_mod(){
