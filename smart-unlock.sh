@@ -51,7 +51,7 @@ if [ "$LOCAL_RUN" == 1 ]; then
 
     debug "Directory to run from: $APPDIR"
 else
-    readonly DEFAULTS_CNF_FILE="/usr/share/defaults.cnf"
+    readonly DEFAULTS_CNF_FILE="/usr/share/smart-unlock/defaults.cnf"
     readonly CONFIG_FILE="$HOME/.config/smart-unlock.cnf"
     readonly MODDIR="/usr/share/smart-unlock/modules"
 fi
