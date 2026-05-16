@@ -1,0 +1,12 @@
+[Unit]
+Description=Smart Unlock daemon
+After=graphical-session.target
+Documentation=https://github.com/agura-lex/smart-unlock
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/smart-unlock
+#ExecStart=/local/path/smart-unlock.sh -l
+
+[Install]
+WantedBy=graphical-session.target
