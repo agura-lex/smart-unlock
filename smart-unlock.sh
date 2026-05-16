@@ -148,7 +148,7 @@ unlock_if_locked(){
 dep_check(){
     for DEP in $(mod info deps); do
         debug "Checking dependency \"$DEP\" for module \"$MOD\"..."
-        if ! [ -x "$(which "$DEP" &>/dev/null)" ]; then
+        if ! [ -x "$(which "$DEP" 2>/dev/null)" ]; then
             err "\"$DEP\" not in the \$PATH"
             return 1
         fi
