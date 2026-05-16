@@ -19,7 +19,7 @@ mod_common_init_dev(){
     echo 0 > "$STATUS_FILE"
 }
 
-mod_common_info()
+mod_common_info() # $1 (optional): a property to request, otherwise returns all
 {
     case "$1" in
         desc) echo "$MOD_DESC" ;;
