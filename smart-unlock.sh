@@ -12,6 +12,7 @@ usage(){
     echo
     echo 'Options:'
     echo '  -l|--local      Run without installation, from a repo directory'
+    echo '  -i|--init-conf  Create config file from the config sample'
     echo '  -d|--debug      Be more versbose than it makes sense'
 }
 
@@ -29,6 +30,7 @@ for ARG in "$@"; do
     case "$ARG" in
         '-u'|'--usage'|'-h'|'--help') usage ;;
         '-l'|'--local') LOCAL_RUN=1 ;;
+        '-i'|'--init-conf') ACTION='init-conf' ;;
         '-d'|'--debug') CLI_DEBUG=1 ;;
         *)
             echo "'$ARG': unknown argument"
@@ -47,15 +49,22 @@ if [ "$LOCAL_RUN" == 1 ]; then
     readonly APPDIR
     readonly DEFAULTS_CNF_FILE="$APPDIR/defaults.cnf"
     readonly CONFIG_FILE="$APPDIR/smart-unlock.cnf"
+    readonly CNF_SAMPLE='smart-unlock.cnf.sample'
     readonly MODDIR="$APPDIR/modules"
 
     debug "Directory to run from: $APPDIR"
 else
     readonly DEFAULTS_CNF_FILE="/usr/share/smart-unlock/defaults.cnf"
     readonly CONFIG_FILE="$HOME/.config/smart-unlock.cnf"
-    readonly MODDIR="/usr/share/smart-unlock/modules"
+    readonly CNF_SAMPLE='/usr/share/smart-unlock/smart-unlock.cnf.sample'
+    readonly MODDIR='/usr/share/smart-unlock/modules'
 fi
 
+# -- Action: init config
+if [ "$ACTION" == 'init-conf' ]; then
+    cp -v "$CNF_SAMPLE" "$CONFIG_FILE"
+    exit
+fi
 
 # -- Figuring out the configuration
 # shellcheck source=defaults.cnf
@@ -70,7 +79,9 @@ if [ -f "$CONFIG_FILE" ]; then
     . "$CONFIG_FILE"
 else
     err "The '$CONFIG_FILE' doesn't exist!"
-    err "Config sample file: \"$CONFIG_FILE\""
+    err "Config sample file: '$CNF_SAMPLE'"
+    echo
+    err "Run $0 --init-conf"
     exit 2
 fi
 
