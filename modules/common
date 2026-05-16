@@ -26,6 +26,7 @@ mod_common_info() # $1 (optional): a property to request, otherwise returns all
         type) echo "$MOD_TYPE" ;;
         backend) echo "$MOD_BACKEND" ;;
         deps)
+            local DEP
             for DEP in "${MOD_DEPS[@]}"; do
                 echo "$DEP"
             done

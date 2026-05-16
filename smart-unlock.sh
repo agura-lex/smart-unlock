@@ -107,12 +107,13 @@ mod_log_err(){
 
 check_mod(){
     #debug "Checking if module '$MOD' is enabled"
+    local M
     for M in "${MODULES[@]}"; do
         if [ "$M" == "$MOD" ]; then
             return 0
         fi
     done
-    echo "Module '$MOD' not enabled, skipping '$DEV_STR'"
+    echo "Module '$MOD' not enabled or failed, skipping '$DEV_STR'"
     return 1
 }
 
@@ -132,6 +133,16 @@ unlock_if_locked(){
     fi
 }
 
+dep_check(){
+    for DEP in $(mod info deps); do
+        debug "Checking dependency \"$DEP\" for module \"$MOD\"..."
+        if ! [ -x "$(which "$DEP" &>/dev/null)" ]; then
+            err "\"$DEP\" not in the \$PATH"
+            return 1
+        fi
+    done
+}
+
 
 # -- Cleanup on exit
 trap \
@@ -147,7 +158,6 @@ mkdir -vpm 700 "$RUNDIR"
 echo
 
 # initialize modules
-# TODO: check deps
 # shellcheck source=modules/common
 . "$MODDIR/common" # source common module funcs
 for MOD in "${MODULES[@]}"; do
@@ -155,7 +165,14 @@ for MOD in "${MODULES[@]}"; do
     # shellcheck source=modules/kde_connect
     # shellcheck source=modules/bluetooth
     . "$MODDIR/$MOD"
-    mod_log init
+    if dep_check; then
+        mod_log init
+    else
+        echo "Module \"$MOD\" won't be initialized"
+        # Remove from MODULES array, so check_mod fails and
+        # devices using the module are skipped
+        MODULES=("${MODULES[@]/$MOD}")
+    fi
 done
 unset MOD
 echo
@@ -180,7 +197,7 @@ while true; do
     for DEV_STR in "${DEVICES[@]}"; do
         MOD=$(awk -F '::' '{ print $1}' <<<"$DEV_STR")
         DEV_ID=$(awk -F '::' '{ print $2}' <<<"$DEV_STR")
-        if check_mod > /dev/null; then
+        if check_mod &> /dev/null; then
             if mod_log check_connect "$DEV_ID"; then
                 unlock_if_locked
             fi
