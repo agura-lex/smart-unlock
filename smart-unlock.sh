@@ -70,6 +70,7 @@ if [ -f "$CONFIG_FILE" ]; then
     . "$CONFIG_FILE"
 else
     err "The '$CONFIG_FILE' doesn't exist!"
+    err "Config sample file: \"$CONFIG_FILE\""
     exit 2
 fi
 
