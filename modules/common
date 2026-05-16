@@ -18,3 +18,22 @@ mod_common_init_dev(){
     chmod 600 "$STATUS_FILE"
     echo 0 > "$STATUS_FILE"
 }
+
+mod_common_info()
+{
+    case "$1" in
+        desc) echo "$MOD_DESC" ;;
+        type) echo "$MOD_TYPE" ;;
+        backend) echo "$MOD_BACKEND" ;;
+        deps)
+            for DEP in "${MOD_DEPS[@]}"; do
+                echo "$DEP"
+            done
+            ;;
+        *)
+            echo "Desctiption: $MOD_DESC"
+            echo "Type: $MOD_TYPE"
+            echo "Backend: $MOD_BACKEND"
+            echo "Depends on: ${MOD_DEPS[*]}"
+    esac
+}

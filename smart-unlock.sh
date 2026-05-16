@@ -98,7 +98,6 @@ mod(){ # Module action wrapper
 }
 
 mod_log(){ # Module action wrapper, prepend module name
-    # TODO: add sanity checks
     mod "$@" 2>&1 | sed "s/^/$MOD: /"
 }
 

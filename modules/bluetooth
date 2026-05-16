@@ -3,9 +3,9 @@
 # shellcheck disable=SC2034
 
 mod_bluetooth_info(){
-    MOD_DESC=''
-    MOD_TYPE=''
-    MOD_BACKEND=''
+    MOD_DESC='Bluetooth module'
+    MOD_TYPE='built-in'
+    MOD_BACKEND='Bluetooth'
     MOD_DEPS=(bluetoothctl)
 }
 

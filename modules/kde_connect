@@ -7,6 +7,8 @@ mod_kde_connect_info(){
     MOD_TYPE='built-in'
     MOD_BACKEND='KDE Connect'
     MOD_DEPS=(kdeconnect-cli qdbus)
+
+    mod_common_info "$@"
 }
 
 mod_kde_connect_init(){
